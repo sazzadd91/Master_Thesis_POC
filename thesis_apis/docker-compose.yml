@@ -1,0 +1,42 @@
+version: "3.8"
+services:
+  mongodb:
+    image: mongo:5.0.2
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - $MONGODB_LOCAL_PORT:$MONGODB_DOCKER_PORT
+    volumes:
+      - db:/data/db
+  contacts:
+    depends_on:
+      - mongodb
+    build: ./contacts
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - $CONTACTS_LOCAL_PORT:$CONTACTS_DOCKER_PORT
+    environment:
+      - DB_HOST=mongodb
+      - DB_NAME=$MONGODB_DATABASE
+      - DB_PORT=$MONGODB_DOCKER_PORT
+    stdin_open: true
+    tty: true
+
+  personal:
+    depends_on:
+      - mongodb
+    build: ./personal
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - $PERSONAL_LOCAL_PORT:$PERSONAL_DOCKER_PORT
+    environment:
+      - DB_HOST=mongodb
+      - DB_NAME=$MONGODB_DATABASE
+      - DB_PORT=$MONGODB_DOCKER_PORT
+    stdin_open: true
+    tty: true
+
+volumes:
+  db:
